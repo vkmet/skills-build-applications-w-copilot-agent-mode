@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 
-import { fetchCollection } from '../lib/api'
+// API endpoint: https://<VITE_CODESPACE_NAME>-8000.app.github.dev/api/workouts/
+// Falls back to http://localhost:8000/api/workouts/ when VITE_CODESPACE_NAME is unset.
+const _codespaceName = import.meta.env.VITE_CODESPACE_NAME || ''
+const _workoutsUrl = _codespaceName && _codespaceName !== 'undefined'
+  ? `https://${_codespaceName}-8000.app.github.dev/api/workouts/`
+  : 'http://localhost:8000/api/workouts/'
 
-// Fetches from: /api/workouts/ — supports both array and paginated responses.
+import { fetchCollection } from '../lib/api'
 function Workouts() {
   const [workouts, setWorkouts] = useState([])
   const [loading, setLoading] = useState(true)

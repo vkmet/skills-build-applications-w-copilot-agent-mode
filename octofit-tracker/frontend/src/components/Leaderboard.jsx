@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 
-import { fetchCollection } from '../lib/api'
+// API endpoint: https://<VITE_CODESPACE_NAME>-8000.app.github.dev/api/leaderboard/
+// Falls back to http://localhost:8000/api/leaderboard/ when VITE_CODESPACE_NAME is unset.
+const _codespaceName = import.meta.env.VITE_CODESPACE_NAME || ''
+const _leaderboardUrl = _codespaceName && _codespaceName !== 'undefined'
+  ? `https://${_codespaceName}-8000.app.github.dev/api/leaderboard/`
+  : 'http://localhost:8000/api/leaderboard/'
 
-// Fetches from: /api/leaderboard/ — supports both array and paginated responses.
+import { fetchCollection } from '../lib/api'
 function Leaderboard() {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
