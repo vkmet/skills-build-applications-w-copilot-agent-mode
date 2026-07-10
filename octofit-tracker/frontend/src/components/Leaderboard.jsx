@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { fetchCollection } from '../lib/api'
 
+// Fetches from: /api/leaderboard/ — supports both array and paginated responses.
 function Leaderboard() {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,46 +14,56 @@ function Leaderboard() {
     async function loadLeaderboard() {
       try {
         const { items } = await fetchCollection('leaderboard')
-        if (active) {
-          setEntries(items)
-        }
+        if (active) setEntries(items)
       } catch (err) {
-        if (active) {
+        if (active)
           setError(err instanceof Error ? err.message : 'Failed to load leaderboard')
-        }
       } finally {
-        if (active) {
-          setLoading(false)
-        }
+        if (active) setLoading(false)
       }
     }
 
     loadLeaderboard()
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [])
 
   if (loading) {
-    return <p>Loading leaderboard...</p>
+    return (
+      <div className="d-flex align-items-center gap-2 text-secondary">
+        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+        Loading leaderboard...
+      </div>
+    )
   }
 
   if (error) {
-    return <p className="text-danger">{error}</p>
+    return <div className="alert alert-danger py-2">{error}</div>
+  }
+
+  if (entries.length === 0) {
+    return <p className="text-secondary">No leaderboard entries found.</p>
   }
 
   return (
-    <ol className="list-group list-group-numbered">
-      {entries.map((entry) => (
-        <li key={entry._id} className="list-group-item d-flex justify-content-between align-items-start">
-          <div>
-            <div className="fw-semibold">{entry.user?.fullName || 'Unknown athlete'}</div>
-            <small className="text-muted">Week of {new Date(entry.weekStart).toLocaleDateString()}</small>
-          </div>
-          <span className="badge text-bg-primary rounded-pill">{entry.points} pts</span>
-        </li>
-      ))}
-    </ol>
+    <>
+      <h2 className="h5 mb-3">Leaderboard</h2>
+      <ol className="list-group list-group-numbered">
+        {entries.map((entry) => (
+          <li
+            key={entry._id}
+            className="list-group-item d-flex justify-content-between align-items-start"
+          >
+            <div>
+              <div className="fw-semibold">{entry.user?.fullName || 'Unknown athlete'}</div>
+              <small className="text-muted">
+                Week of {new Date(entry.weekStart).toLocaleDateString()}
+              </small>
+            </div>
+            <span className="badge text-bg-primary rounded-pill">{entry.points} pts</span>
+          </li>
+        ))}
+      </ol>
+    </>
   )
 }
 

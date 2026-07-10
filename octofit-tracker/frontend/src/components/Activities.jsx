@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { fetchCollection } from '../lib/api'
 
+// Fetches from: /api/activities/ — supports both array and paginated responses.
 function Activities() {
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,38 +14,41 @@ function Activities() {
     async function loadActivities() {
       try {
         const { items } = await fetchCollection('activities')
-        if (active) {
-          setActivities(items)
-        }
+        if (active) setActivities(items)
       } catch (err) {
-        if (active) {
+        if (active)
           setError(err instanceof Error ? err.message : 'Failed to load activities')
-        }
       } finally {
-        if (active) {
-          setLoading(false)
-        }
+        if (active) setLoading(false)
       }
     }
 
     loadActivities()
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [])
 
   if (loading) {
-    return <p>Loading activities...</p>
+    return (
+      <div className="d-flex align-items-center gap-2 text-secondary">
+        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+        Loading activities...
+      </div>
+    )
   }
 
   if (error) {
-    return <p className="text-danger">{error}</p>
+    return <div className="alert alert-danger py-2">{error}</div>
+  }
+
+  if (activities.length === 0) {
+    return <p className="text-secondary">No activities found.</p>
   }
 
   return (
     <div className="table-responsive">
+      <h2 className="h5 mb-3">Activities</h2>
       <table className="table table-hover table-sm align-middle">
-        <thead>
+        <thead className="table-light">
           <tr>
             <th>User</th>
             <th>Type</th>
@@ -59,8 +63,8 @@ function Activities() {
               <td>{activity.user?.fullName || 'Unknown'}</td>
               <td className="text-capitalize">{activity.type}</td>
               <td>{activity.durationMin} min</td>
-              <td>{activity.caloriesBurned}</td>
-              <td>{activity.distanceKm ? `${activity.distanceKm} km` : '-'}</td>
+              <td>{activity.caloriesBurned ?? '—'}</td>
+              <td>{activity.distanceKm ? `${activity.distanceKm} km` : '—'}</td>
             </tr>
           ))}
         </tbody>

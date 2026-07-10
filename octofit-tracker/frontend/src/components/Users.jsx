@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { fetchCollection } from '../lib/api'
 
+// Fetches from: /api/users/ — supports both array and paginated responses.
 function Users() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,38 +14,41 @@ function Users() {
     async function loadUsers() {
       try {
         const { items } = await fetchCollection('users')
-        if (active) {
-          setUsers(items)
-        }
+        if (active) setUsers(items)
       } catch (err) {
-        if (active) {
+        if (active)
           setError(err instanceof Error ? err.message : 'Failed to load users')
-        }
       } finally {
-        if (active) {
-          setLoading(false)
-        }
+        if (active) setLoading(false)
       }
     }
 
     loadUsers()
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [])
 
   if (loading) {
-    return <p>Loading users...</p>
+    return (
+      <div className="d-flex align-items-center gap-2 text-secondary">
+        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+        Loading users...
+      </div>
+    )
   }
 
   if (error) {
-    return <p className="text-danger">{error}</p>
+    return <div className="alert alert-danger py-2">{error}</div>
+  }
+
+  if (users.length === 0) {
+    return <p className="text-secondary">No users found.</p>
   }
 
   return (
     <div className="table-responsive">
+      <h2 className="h5 mb-3">Users</h2>
       <table className="table table-striped table-sm align-middle">
-        <thead>
+        <thead className="table-light">
           <tr>
             <th>Name</th>
             <th>Email</th>
@@ -57,7 +61,7 @@ function Users() {
             <tr key={user._id}>
               <td>{user.fullName}</td>
               <td>{user.email}</td>
-              <td className="text-capitalize">{user.fitnessLevel}</td>
+              <td className="text-capitalize">{user.fitnessLevel || '—'}</td>
               <td>{user.team?.name || 'Unassigned'}</td>
             </tr>
           ))}
