@@ -1,0 +1,17 @@
+.app-shell {
+  max-width: 1024px;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.nav-pills .nav-link {
+  border: 1px solid #dee2e6;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #0d6efd;
+}
